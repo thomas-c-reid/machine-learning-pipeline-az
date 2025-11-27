@@ -1,0 +1,23 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: preprocessing_component
+version: 1
+code: ../
+entry: main.py
+
+inputs:
+  raw_data:
+    type: uri_file
+    description: Path to raw input data
+
+outputs:
+  train_data:
+    type: uri_file
+    description: Preprocessed training data
+  test_data:
+    type: uri_file
+    description: Preprocessed test data
+
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu@latest
+
+command: >-
+  bash -lc "python -m pip install --no-cache-dir -r components/requirements.txt && python main.py --data-path ${{inputs.raw_data}} --train-output ${{outputs.train_data}} --test-output ${{outputs.test_data}}"

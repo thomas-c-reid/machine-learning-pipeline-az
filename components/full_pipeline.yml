@@ -1,0 +1,52 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+
+experiment_name: incident-ml-pipeline
+display_name: Full ML Pipeline
+
+jobs:
+  preprocess:
+    type: command
+    component: ./preprocessing_pipeline.yml
+    inputs:
+      raw_data: azureml:itsm-data:1
+    outputs:
+      train_data:
+        type: uri_file
+      test_data:
+        type: uri_file
+    compute: eastus-compute
+
+  train:
+    type: command
+    component: ./train_component.yml
+    inputs:
+      train_data: ${{ parent.jobs.preprocess.outputs.train_data }}
+    outputs:
+      model:
+        type: uri_folder
+      metrics:
+        type: uri_file
+    compute: eastus-compute
+
+  deploy_register:
+    type: command
+    component: ./deploy_register.yml
+    inputs:
+      metrics_path: ${{ parent.jobs.train.outputs.metrics }}
+      model_path: ${{ parent.jobs.train.outputs.model }}
+      accuracy_threshold: 0.3
+      endpoint_name: "itsm-endpoint"
+    compute: eastus-compute
+
+  test:
+    type: command
+    component: ./test_component.yml
+    inputs:
+      test_data: ${{ parent.jobs.preprocess.outputs.test_data }}
+      endpoint_name: "itsm-endpoint"
+      workspace_region: "eastus"
+      api_key: ${{ parent.jobs.deploy_register.outputs.api_key }}
+    compute: eastus-compute
+    depends_on:
+      - deploy_register

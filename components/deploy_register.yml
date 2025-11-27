@@ -1,0 +1,23 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+name: deploy_register
+version: 1
+code: ../
+
+inputs:
+  metrics_path:
+    type: uri_file
+  model_path:
+    type: uri_folder
+  accuracy_threshold:
+    type: number
+  endpoint_name:
+    type: string
+
+outputs:
+  api_key:
+    type: uri_file
+
+environment: azureml:deploy-register-env-eastus:5
+
+command: >
+  python deployment/deploy_register.py --metrics_path ${{inputs.metrics_path}} --model_path ${{inputs.model_path}} --accuracy_threshold ${{inputs.accuracy_threshold}} --endpoint_name ${{inputs.endpoint_name}}

@@ -1,0 +1,36 @@
+name: Azure ML Pipeline
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  run-ml-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Install Azure ML CLI
+        run: |
+          az extension add -n ml -y
+      
+      - name: Run ML Pipeline
+        env:
+          RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
+          WORKSPACE_NAME: ${{ secrets.AZURE_WORKSPACE_NAME }}
+        run: |
+          az ml job create --file components/full_pipeline.yml --resource-group $RESOURCE_GROUP --workspace-name $WORKSPACE_NAME
