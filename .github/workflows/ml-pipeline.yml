@@ -18,19 +18,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
-      - name: Azure Login
-        uses: azure/login@v1
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      
-      - name: Install Azure ML CLI
+          python-version: '3.x'
+
+      - name: Run Azure pipeline
         run: |
-          az extension add -n ml -y
-      
-      - name: Run ML Pipeline
-        env:
-          RESOURCE_GROUP: ${{ secrets.AZURE_RESOURCE_GROUP }}
-          WORKSPACE_NAME: ${{ secrets.AZURE_WORKSPACE_NAME }}
-        run: |
-          az ml job create --file components/full_pipeline.yml --resource-group $RESOURCE_GROUP --workspace-name $WORKSPACE_NAME
+          python -u simulate_real_endpoint.py
