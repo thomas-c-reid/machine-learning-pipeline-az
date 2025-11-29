@@ -6,6 +6,7 @@ import os
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
+from simulate_real_endpoint import print_simulated_endpoint_test
 
 # -----------------------------
 # Parse arguments
@@ -73,3 +74,6 @@ os.makedirs(args.metrics_output, exist_ok=True)
 with open(os.path.join(args.metrics_output, "metrics.json"), "w") as f:
     json.dump(metrics, f)
 print(f"Metrics saved to {args.metrics_output}")
+
+
+print_simulated_endpoint_test()
